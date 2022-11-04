@@ -1,7 +1,8 @@
 import { Deg } from './deg'
 
-export type MinoPoints = {
-  points: {
-    [key in Deg]: number[][]
-  }
-}
+export type MinoPoints = { [key in Deg]: number[][] }
+// {
+//   points: {
+//     [key in Deg]: number[][]
+//   }
+// }

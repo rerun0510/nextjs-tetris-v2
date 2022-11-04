@@ -1,2 +1,5 @@
+export type { Action } from './action'
+export type { Cell } from './cell'
+export type { CurrentMino } from './currentMino'
 export type { Deg } from './deg'
 export type { MinoPoints } from './minoPoints'
