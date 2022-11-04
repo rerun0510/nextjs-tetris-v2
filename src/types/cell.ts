@@ -1,3 +1,4 @@
 export type Cell = {
-  color: string
+  color?: string
+  isWall: boolean
 }
