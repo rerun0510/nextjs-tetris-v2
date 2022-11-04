@@ -1,5 +1,6 @@
-import { Square, SquareProps } from '@chakra-ui/react'
 import { FC, memo } from 'react'
+
+import { Square, SquareProps } from '@chakra-ui/react'
 
 export const MinoSquare: FC<SquareProps> = memo(
   function MinoSquare({ ...rest }) {

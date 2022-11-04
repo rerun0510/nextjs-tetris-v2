@@ -1,9 +1,12 @@
+import { useEffect, useState } from 'react'
+
+import { useRouter } from 'next/router'
+
+import { Box, Button, Center, Flex } from '@chakra-ui/react'
+
 import { MinoNext } from '@/components/minoNext'
 import { Mino } from '@/enums'
 import { useGeneratingMinos } from '@/hooks/useGeneratingMinos'
-import { Box, Button, Center, Flex } from '@chakra-ui/react'
-import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
 
 export default function Home() {
   const router = useRouter()

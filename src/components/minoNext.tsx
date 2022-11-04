@@ -1,8 +1,11 @@
+import { FC, memo } from 'react'
+
+import { Box, Flex } from '@chakra-ui/react'
+
 import { MINO_POINTS_NEXT } from '@/constants/minoPointsNext'
 import { NEXT_MINO_SIZE } from '@/constants/settings'
 import { Mino, minos } from '@/enums'
-import { Box, Flex } from '@chakra-ui/react'
-import { FC, memo } from 'react'
+
 import { MinoSquare } from './minoSquare'
 
 type Props = { mino: Mino }

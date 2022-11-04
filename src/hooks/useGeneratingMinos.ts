@@ -1,6 +1,7 @@
+import { useCallback, useState } from 'react'
+
 import { Mino, minos } from '@/enums'
 import { shuffleArray } from '@/utils'
-import { useCallback, useState } from 'react'
 
 const initNextMinos = (): Mino[] =>
   shuffleArray(
