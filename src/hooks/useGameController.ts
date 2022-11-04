@@ -88,16 +88,11 @@ export const useGameController = () => {
     setCells([...newCells])
   }, [currentMino])
 
-  const [count, setCount] = useState(0)
   const down = useCallback(() => {
-    if (!currentMino.isFixed) {
-      // 操作中のミノを1セル分落下
-      setCurrentMino({
-        ...currentMino,
-        pointY: currentMino.pointY + 1,
-      })
-      updateCells()
-    } else {
+    if (
+      currentMino.isFixed ||
+      currentMino.mino === 'none'
+    ) {
       setCurrentMino({
         pointX: INIT_MINO_POSITION_X,
         pointY: INIT_MINO_POSITION_Y,
@@ -105,9 +100,15 @@ export const useGameController = () => {
         deg: 0,
         isFixed: false,
       })
+    } else {
+      // 操作中のミノを1セル分落下
+      setCurrentMino({
+        ...currentMino,
+        pointY: currentMino.pointY + 1,
+      })
+      updateCells()
     }
-    setCount(count + 1)
-  }, [count, currentMino, popMino, updateCells])
+  }, [currentMino, popMino, updateCells])
 
   useInterval({ onUpdate: () => down() })
 
