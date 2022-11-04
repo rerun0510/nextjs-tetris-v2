@@ -15,7 +15,7 @@ import { Action, Cell, CurrentMino, Deg } from '@/types'
 import { useGeneratingMinos } from './useGeneratingMinos'
 import { useInterval } from './useInterval'
 
-const emptyCells = (): Cell[][] => {
+const createEmptyCells = (): Cell[][] => {
   const col: Cell[][] = []
   for (let i = 0; i < CELL_SIZE_Y; i++) {
     const row: Cell[] = []
@@ -53,15 +53,29 @@ export const useGameController = () => {
       deg: 0,
       isFixed: false,
     })
-  const [fixedCells, setFixedCells] = useState<Cell[][]>([])
-  const [cells, setCells] = useState([...emptyCells()])
+  const [fixedCells, setFixedCells] = useState<Cell[][]>([
+    ...createEmptyCells(),
+  ])
+  const [cells, setCells] = useState([
+    ...createEmptyCells(),
+  ])
 
   const updateCells = useCallback(() => {
     const { pointX, pointY, mino, deg } = currentMino
     const { points, color } = minos[mino]
     const point = points[deg]
-    const newCells = emptyCells()
-    // TODO: 既存のミノを配置
+    const newFixedCells = Array.from(fixedCells)
+    const newCells = Array.from(createEmptyCells())
+
+    // 既存のミノを配置
+    for (let i = 0; i < newFixedCells.length; i++) {
+      for (let j = 0; j < newFixedCells[i].length; j++) {
+        if (newFixedCells[i][j].color) {
+          newCells[i][j] = { ...newFixedCells[i][j] }
+        }
+      }
+    }
+
     // 操作中のミノを配置
     let isFixed = false
     for (let i = 0; i < point.length; i++) {
@@ -85,8 +99,23 @@ export const useGameController = () => {
         }
       }
     }
+
+    // 落下が完了したミノを固定
+    if (isFixed) {
+      for (let i = 0; i < point.length; i++) {
+        for (let j = 0; j < point[i].length; j++) {
+          if (point[i][j]) {
+            newFixedCells[i + pointY][j + pointX] = {
+              color,
+              isWall: true,
+            }
+          }
+        }
+      }
+      setFixedCells([...newFixedCells])
+    }
     setCells([...newCells])
-  }, [currentMino])
+  }, [currentMino, fixedCells])
 
   const down = useCallback(() => {
     if (
