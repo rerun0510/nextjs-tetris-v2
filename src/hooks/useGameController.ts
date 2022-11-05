@@ -10,7 +10,13 @@ import {
   INIT_MINO_POSITION_Y,
 } from '@/constants/settings'
 import { minos } from '@/enums'
-import { Action, Cell, CurrentMino, Deg } from '@/types'
+import {
+  Action,
+  ActionHorizontal,
+  ActionRotate,
+  Cell,
+  CurrentMino,
+} from '@/types'
 
 import { useGeneratingMinos } from './useGeneratingMinos'
 import { useInterval } from './useInterval'
@@ -129,54 +135,74 @@ export const useGameController = () => {
 
   useInterval({ onUpdate: () => down() })
 
-  const rotate90 = useCallback(
-    (direction: 'cw' | 'ccw'): Deg => {
-      switch (currentMino.deg) {
+  const actionRotate90 = useCallback(
+    (action: ActionRotate) => {
+      let deg = currentMino.deg
+      // TODO: 回転の判定処理を挟む
+      switch (deg) {
         case 0:
-          return direction === 'cw' ? 90 : 270
+          deg = action === 'rotate90CW' ? 90 : 270
+          break
         case 90:
-          return direction === 'cw' ? 180 : 0
+          deg = action === 'rotate90CW' ? 180 : 0
+          break
         case 180:
-          return direction === 'cw' ? 270 : 90
-
+          deg = action === 'rotate90CW' ? 270 : 90
+          break
         case 270:
-          return direction === 'cw' ? 0 : 180
+          deg = action === 'rotate90CW' ? 0 : 180
+          break
       }
+      setCurrentMino({
+        ...currentMino,
+        deg,
+      })
     },
-    [currentMino.deg]
+    [currentMino]
+  )
+
+  const actionHorizontal = useCallback(
+    (action: ActionHorizontal) => {
+      const { pointX, pointY, mino, deg } = currentMino
+      const point = minos[mino].points[deg]
+      // 壁の衝突判定処理
+      for (let i = 0; i < point.length; i++) {
+        for (let j = 0; j < point[i].length; j++) {
+          if (
+            point[i][j] &&
+            cells[i + pointY][
+              j + pointX + (action === 'right' ? 1 : -1)
+            ].isWall
+          ) {
+            return
+          }
+        }
+      }
+      setCurrentMino({
+        ...currentMino,
+        pointX:
+          currentMino.pointX +
+          (action === 'right' ? 1 : -1),
+      })
+    },
+    [cells, currentMino]
   )
 
   const action = useCallback(
     (action: Action) => {
       switch (action) {
         case 'right':
-          setCurrentMino({
-            ...currentMino,
-            pointX: currentMino.pointX + 1,
-          })
-          break
         case 'left':
-          setCurrentMino({
-            ...currentMino,
-            pointX: currentMino.pointX - 1,
-          })
+          actionHorizontal(action)
           break
         case 'rotate90CW':
-          setCurrentMino({
-            ...currentMino,
-            deg: rotate90('cw'),
-          })
-          break
         case 'rotate90CCW':
-          setCurrentMino({
-            ...currentMino,
-            deg: rotate90('ccw'),
-          })
+          actionRotate90(action)
           break
       }
       updateCells()
     },
-    [currentMino, rotate90, updateCells]
+    [updateCells, actionHorizontal, actionRotate90]
   )
 
   return { nextMinos, cells, action }

@@ -1,4 +1,6 @@
 export type { Action } from './action'
+export type { ActionHorizontal } from './actionHorizontal'
+export type { ActionRotate } from './actionRotate'
 export type { Cell } from './cell'
 export type { CurrentMino } from './currentMino'
 export type { Deg } from './deg'

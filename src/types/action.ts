@@ -1,5 +1,3 @@
-export type Action =
-  | 'right'
-  | 'left'
-  | 'rotate90CW'
-  | `rotate90CCW`
+import { ActionHorizontal, ActionRotate } from '.'
+
+export type Action = ActionHorizontal | ActionRotate
