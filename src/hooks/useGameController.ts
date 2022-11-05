@@ -15,33 +15,21 @@ import { Action, Cell, CurrentMino, Deg } from '@/types'
 import { useGeneratingMinos } from './useGeneratingMinos'
 import { useInterval } from './useInterval'
 
-const createEmptyCells = (): Cell[][] => {
-  const col: Cell[][] = []
-  for (let i = 0; i < CELL_SIZE_Y; i++) {
-    const row: Cell[] = []
-    for (let j = 0; j < CELL_SIZE_X; j++) {
-      row.push({
-        color:
-          FIELD_WALL_SIZE <= i &&
-          i < FIELD_SIZE_Y + FIELD_WALL_SIZE &&
-          FIELD_WALL_SIZE <= j &&
-          j < FIELD_SIZE_X + FIELD_WALL_SIZE
-            ? ''
-            : 'gray',
-        isWall: !(
-          FIELD_WALL_SIZE <= i &&
-          i < FIELD_SIZE_Y + FIELD_WALL_SIZE &&
-          FIELD_WALL_SIZE <= j &&
-          j < FIELD_SIZE_X + FIELD_WALL_SIZE
-        ),
-      })
-    }
-    col.push(row)
-  }
-  return col
-  // 本当はこんな感じに書きたい
-  // return Array<Cell[]>(20).fill(Array<Cell>(10).fill({ color: '' }))
-}
+const createEmptyCells = (): Cell[][] =>
+  Array.from({ length: CELL_SIZE_Y }, (_, i) =>
+    Array.from({ length: CELL_SIZE_X }, (_, j) => {
+      const isWall = !(
+        FIELD_WALL_SIZE <= i &&
+        i < FIELD_SIZE_Y + FIELD_WALL_SIZE &&
+        FIELD_WALL_SIZE <= j &&
+        j < FIELD_SIZE_X + FIELD_WALL_SIZE
+      )
+      return {
+        color: isWall ? 'gray' : '',
+        isWall,
+      } as Cell
+    })
+  )
 
 export const useGameController = () => {
   const { nextMinos, popMino } = useGeneratingMinos()
