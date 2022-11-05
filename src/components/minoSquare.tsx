@@ -10,6 +10,7 @@ export const MinoSquare: FC<SquareProps> = memo(
         bg={rest.bg || rest.backgroundColor}
         size={rest.size ?? '25px'}
         border={rest.border ?? 'solid 1px'}
+        opacity={rest.opacity ?? ''}
       />
     )
   }

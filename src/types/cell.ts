@@ -1,4 +1,6 @@
 export type Cell = {
   color?: string
-  isWall: boolean
+  isFixed: boolean
+  isCurrent: boolean
+  isTargetPoint: boolean
 }

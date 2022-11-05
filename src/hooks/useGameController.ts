@@ -22,8 +22,8 @@ import { useGeneratingMinos } from './useGeneratingMinos'
 import { useInterval } from './useInterval'
 
 const createEmptyCells = (): Cell[][] =>
-  Array.from({ length: CELL_SIZE_Y }, (_, i) =>
-    Array.from({ length: CELL_SIZE_X }, (_, j) => {
+  Array.from({ length: CELL_SIZE_Y }, (_, i): Cell[] =>
+    Array.from({ length: CELL_SIZE_X }, (_, j): Cell => {
       const isWall = !(
         FIELD_WALL_SIZE <= i &&
         i < FIELD_SIZE_Y + FIELD_WALL_SIZE &&
@@ -32,8 +32,10 @@ const createEmptyCells = (): Cell[][] =>
       )
       return {
         color: isWall ? 'gray' : '',
-        isWall,
-      } as Cell
+        isFixed: isWall,
+        isCurrent: false,
+        isTargetPoint: false,
+      }
     })
   )
 
@@ -64,13 +66,13 @@ export const useGameController = () => {
     // 既存のミノを配置
     for (let i = 0; i < newFixedCells.length; i++) {
       for (let j = 0; j < newFixedCells[i].length; j++) {
-        if (newFixedCells[i][j].color) {
+        if (newFixedCells[i][j].isFixed) {
           newCells[i][j] = { ...newFixedCells[i][j] }
         }
       }
     }
 
-    // 操作中のミノを配置
+    // 操作中のミノに関する処理
     let isFixed = false
     for (let i = 0; i < point.length; i++) {
       for (let j = 0; j < point[i].length; j++) {
@@ -78,7 +80,7 @@ export const useGameController = () => {
           // 着地判定
           if (!isFixed) {
             isFixed =
-              newCells[i + pointY + 1][j + pointX].isWall
+              newCells[i + pointY + 1][j + pointX].isFixed
             if (isFixed) {
               setCurrentMino({
                 ...currentMino,
@@ -86,9 +88,53 @@ export const useGameController = () => {
               })
             }
           }
+          // 操作中のミノを配置
           newCells[i + pointY][j + pointX] = {
             color,
-            isWall: false,
+            isFixed: false,
+            isCurrent: true,
+            isTargetPoint: false,
+          }
+        }
+      }
+    }
+
+    if (!isFixed) {
+      // 操作中のミノが衝突するまでの最短距離を算出
+      let distance = CELL_SIZE_Y
+      for (let i = 0; i < point.length; i++) {
+        for (let j = 0; j < point[i].length; j++) {
+          if (point[i][j]) {
+            for (
+              let k = i + pointY + 1;
+              k < newCells.length;
+              k++
+            ) {
+              if (newCells[k][j + pointX].isFixed) {
+                distance =
+                  distance > k - (i + pointY) - 1
+                    ? k - (i + pointY) - 1
+                    : distance
+              }
+            }
+          }
+        }
+      }
+
+      // 操作中のミノの落下予定地を設定
+      for (let i = 0; i < point.length; i++) {
+        for (let j = 0; j < point[i].length; j++) {
+          if (
+            point[i][j] &&
+            !newCells[distance + i + pointY][j + pointX]
+              .isCurrent
+          ) {
+            newCells[distance + i + pointY][j + pointX] = {
+              color,
+              isFixed: false,
+              isCurrent: false,
+              isTargetPoint: true,
+            }
           }
         }
       }
@@ -101,7 +147,9 @@ export const useGameController = () => {
           if (point[i][j]) {
             newFixedCells[i + pointY][j + pointX] = {
               color,
-              isWall: true,
+              isFixed: true,
+              isCurrent: false,
+              isTargetPoint: false,
             }
           }
         }
@@ -172,7 +220,7 @@ export const useGameController = () => {
             point[i][j] &&
             cells[i + pointY][
               j + pointX + (action === 'right' ? 1 : -1)
-            ].isWall
+            ].isFixed
           ) {
             return
           }

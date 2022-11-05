@@ -25,6 +25,9 @@ export const Field: FC<Props> = memo(function Field({
                 <MinoSquare
                   key={j}
                   bg={cells[i][j].color}
+                  opacity={
+                    cells[i][j].isTargetPoint ? '0.7' : ''
+                  }
                 />
               )
             }
