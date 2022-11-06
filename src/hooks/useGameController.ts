@@ -86,11 +86,27 @@ export const useGameController = () => {
     [currentMino]
   )
 
+  const fixedDecision = useCallback(() => {
+    const { pointX, pointY, mino, deg } = currentMino
+    const { points } = minos[mino]
+    const point = points[deg]
+    for (let i = 0; i < point.length; i++) {
+      for (let j = 0; j < point[i].length; j++) {
+        if (point[i][j]) {
+          // 着地判定
+          if (cells[i + pointY + 1][j + pointX].isFixed) {
+            return true
+          }
+        }
+      }
+    }
+    return false
+  }, [cells, currentMino])
+
   const updateCells = useCallback(() => {
     const { pointX, pointY, mino, deg } = currentMino
     const { points, color } = minos[mino]
     const point = points[deg]
-    const newFixedCells = Array.from(fixedCells)
     const newCells = Array.from(fixedCells)
 
     // 1つ前の操作中ミノとその影を削除
@@ -111,21 +127,9 @@ export const useGameController = () => {
     }
 
     // 操作中のミノに関する処理
-    let isFixed = currentMino.isFixed
     for (let i = 0; i < point.length; i++) {
       for (let j = 0; j < point[i].length; j++) {
         if (point[i][j]) {
-          // 着地判定
-          if (!isFixed) {
-            isFixed =
-              newCells[i + pointY + 1][j + pointX].isFixed
-            if (isFixed) {
-              setCurrentMino({
-                ...currentMino,
-                isFixed: true,
-              })
-            }
-          }
           // 操作中のミノを配置
           newCells[i + pointY][j + pointX] = {
             color,
@@ -137,43 +141,24 @@ export const useGameController = () => {
       }
     }
 
-    if (!isFixed) {
-      // 操作中のミノが衝突するまでの最短距離を算出
-      const distance = calcDistanceToCollision(newCells)
-      // 操作中のミノの落下予定地を設定
-      for (let i = 0; i < point.length; i++) {
-        for (let j = 0; j < point[i].length; j++) {
-          if (
-            point[i][j] &&
-            !newCells[distance + i + pointY][j + pointX]
-              .isCurrent
-          ) {
-            newCells[distance + i + pointY][j + pointX] = {
-              color,
-              isFixed: false,
-              isCurrent: false,
-              isGhost: true,
-            }
+    // 操作中のミノが衝突するまでの最短距離を算出
+    const distance = calcDistanceToCollision(newCells)
+    // 操作中のミノの落下予定地を設定
+    for (let i = 0; i < point.length; i++) {
+      for (let j = 0; j < point[i].length; j++) {
+        if (
+          point[i][j] &&
+          !newCells[distance + i + pointY][j + pointX]
+            .isCurrent
+        ) {
+          newCells[distance + i + pointY][j + pointX] = {
+            color,
+            isFixed: false,
+            isCurrent: false,
+            isGhost: true,
           }
         }
       }
-    }
-
-    // 落下が完了したミノを固定
-    if (isFixed) {
-      for (let i = 0; i < point.length; i++) {
-        for (let j = 0; j < point[i].length; j++) {
-          if (point[i][j]) {
-            newFixedCells[i + pointY][j + pointX] = {
-              color,
-              isFixed: true,
-              isCurrent: false,
-              isGhost: false,
-            }
-          }
-        }
-      }
-      setFixedCells(newFixedCells)
     }
     setCells(newCells)
   }, [calcDistanceToCollision, currentMino, fixedCells])
@@ -221,17 +206,17 @@ export const useGameController = () => {
         )
       }
       setFixedCells(newFixedCells)
+      updateCells()
     }
-  }, [fixedCells])
+  }, [fixedCells, updateCells])
 
   const loop = useCallback(() => {
-    // ミノの削除
-    deleteCell()
-    // ミノの落下
-    if (
-      currentMino.isFixed ||
-      currentMino.mino === 'none'
-    ) {
+    const { pointX, pointY, mino, deg } = currentMino
+    const { points, color } = minos[mino]
+    const point = points[deg]
+
+    // スタート時
+    if (currentMino.mino === 'none') {
       setCurrentMino({
         pointX: INIT_MINO_POSITION_X,
         pointY: INIT_MINO_POSITION_Y,
@@ -239,15 +224,71 @@ export const useGameController = () => {
         deg: 0,
         isFixed: false,
       })
+      updateCells()
+      return
+    }
+
+    // ミノの削除
+    deleteCell()
+
+    // ミノの落下
+    if (currentMino.isFixed) {
+      // 着地の再判定を行う(着地前の移動に対応)
+      if (fixedDecision()) {
+        const newFixedCells = Array.from(fixedCells)
+        for (let i = 0; i < point.length; i++) {
+          for (let j = 0; j < point[i].length; j++) {
+            if (point[i][j]) {
+              newFixedCells[i + pointY][j + pointX] = {
+                color,
+                isFixed: true,
+                isCurrent: false,
+                isGhost: false,
+              }
+            }
+          }
+        }
+        setFixedCells(newFixedCells)
+
+        // 次のミノの落下開始
+        setCurrentMino({
+          pointX: INIT_MINO_POSITION_X,
+          pointY: INIT_MINO_POSITION_Y,
+          mino: popMino(),
+          deg: 0,
+          isFixed: false,
+        })
+      } else {
+        setCurrentMino({
+          ...currentMino,
+          pointY: currentMino.pointY + 1,
+        })
+        updateCells()
+        return
+      }
     } else {
-      // 操作中のミノを1セル分落下
-      setCurrentMino({
-        ...currentMino,
-        pointY: currentMino.pointY + 1,
-      })
+      if (fixedDecision()) {
+        setCurrentMino({
+          ...currentMino,
+          isFixed: true,
+        })
+      } else {
+        // 操作中のミノを1セル分落下
+        setCurrentMino({
+          ...currentMino,
+          pointY: currentMino.pointY + 1,
+        })
+      }
       updateCells()
     }
-  }, [currentMino, deleteCell, popMino, updateCells])
+  }, [
+    currentMino,
+    deleteCell,
+    fixedCells,
+    fixedDecision,
+    popMino,
+    updateCells,
+  ])
 
   useInterval({ onUpdate: () => loop() })
 
