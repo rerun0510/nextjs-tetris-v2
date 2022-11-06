@@ -6,7 +6,7 @@ import { Box, Center, Flex } from '@chakra-ui/react'
 
 import { Controller } from '@/components/controller'
 import { Field } from '@/components/field'
-import { MinoNext } from '@/components/minoNext'
+import { MinoList } from '@/components/minoList'
 import { useGameController } from '@/hooks/useGameController'
 
 export default function Home() {
@@ -27,17 +27,8 @@ export default function Home() {
       <Box>
         <Flex>
           <Field cells={cells} />
-          <Box>
-            {(() => {
-              const items: JSX.Element[] = []
-              for (let i = 0; i < 7; i++) {
-                items.push(
-                  <MinoNext key={i} mino={nextMinos[i]} />
-                )
-              }
-              return items
-            })()}
-          </Box>
+          <Box w="15px" />
+          <MinoList nextMinos={nextMinos} />
         </Flex>
         <Controller action={action} />
       </Box>

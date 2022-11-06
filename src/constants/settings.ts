@@ -1,5 +1,3 @@
-export const NEXT_MINO_SIZE = '15px'
-
 // 操作可能なセルの範囲
 export const FIELD_SIZE_X = 10
 export const FIELD_SIZE_Y = 20

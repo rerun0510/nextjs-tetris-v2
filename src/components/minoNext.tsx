@@ -3,7 +3,6 @@ import { FC, memo } from 'react'
 import { Box, Flex } from '@chakra-ui/react'
 
 import { MINO_POINTS_NEXT } from '@/constants/minoPointsNext'
-import { NEXT_MINO_SIZE } from '@/constants/settings'
 import { Mino, minos } from '@/enums'
 
 import { MinoSquare } from './minoSquare'
@@ -26,7 +25,7 @@ export const MinoNext: FC<Props> = memo(function MinoNext({
             itemsJ.push(
               <MinoSquare
                 key={j}
-                size={NEXT_MINO_SIZE}
+                size="15px"
                 bg={point[i][j] ? color : ''}
                 border={point[i][j] ? undefined : ''}
               />
