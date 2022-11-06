@@ -160,6 +160,27 @@ export const useGameController = () => {
   }, [currentMino, fixedCells])
 
   const down = useCallback(() => {
+    // ミノの削除対象となる列を算出
+    const deleteIndex: number[] = []
+    for (
+      let i = FIELD_WALL_SIZE;
+      i < fixedCells.length - FIELD_WALL_SIZE;
+      i++
+    ) {
+      let minoCount = 0
+      for (
+        let j = FIELD_WALL_SIZE;
+        j < fixedCells[i].length - FIELD_WALL_SIZE;
+        j++
+      ) {
+        minoCount += fixedCells[i][j].isFixed ? 1 : 0
+      }
+      if (FIELD_SIZE_X === minoCount) {
+        deleteIndex.push(i)
+      }
+    }
+    // TODO: 列の削除処理を実装
+
     if (
       currentMino.isFixed ||
       currentMino.mino === 'none'
@@ -179,7 +200,7 @@ export const useGameController = () => {
       })
       updateCells()
     }
-  }, [currentMino, popMino, updateCells])
+  }, [currentMino, fixedCells, popMino, updateCells])
 
   useInterval({ onUpdate: () => down() })
 
