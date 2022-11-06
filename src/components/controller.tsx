@@ -4,6 +4,7 @@ import { Button, HStack } from '@chakra-ui/react'
 import {
   BsArrowRightCircle,
   BsArrowLeftCircle,
+  BsArrowDownCircle,
 } from 'react-icons/bs'
 import { FiRotateCcw, FiRotateCw } from 'react-icons/fi'
 
@@ -19,6 +20,9 @@ export const Controller: FC<Props> = memo(
       <HStack>
         <Button onClick={() => action('left')}>
           <BsArrowLeftCircle />
+        </Button>
+        <Button onClick={() => action('hardDrop')}>
+          <BsArrowDownCircle />
         </Button>
         <Button onClick={() => action('right')}>
           <BsArrowRightCircle />

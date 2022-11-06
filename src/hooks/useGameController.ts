@@ -56,6 +56,36 @@ export const useGameController = () => {
     ...createEmptyCells(),
   ])
 
+  const calcDistanceToCollision = useCallback(
+    (comparisonCells: Cell[][]) => {
+      const { pointX, pointY, mino, deg } = currentMino
+      const { points } = minos[mino]
+      const point = points[deg]
+      // 操作中のミノが衝突するまでの最短距離を算出
+      let distance = CELL_SIZE_Y
+      for (let i = 0; i < point.length; i++) {
+        for (let j = 0; j < point[i].length; j++) {
+          if (point[i][j]) {
+            for (
+              let k = i + pointY + 1;
+              k < comparisonCells.length;
+              k++
+            ) {
+              if (comparisonCells[k][j + pointX].isFixed) {
+                distance =
+                  distance > k - (i + pointY) - 1
+                    ? k - (i + pointY) - 1
+                    : distance
+              }
+            }
+          }
+        }
+      }
+      return distance
+    },
+    [currentMino]
+  )
+
   const updateCells = useCallback(() => {
     const { pointX, pointY, mino, deg } = currentMino
     const { points, color } = minos[mino]
@@ -101,26 +131,7 @@ export const useGameController = () => {
 
     if (!isFixed) {
       // 操作中のミノが衝突するまでの最短距離を算出
-      let distance = CELL_SIZE_Y
-      for (let i = 0; i < point.length; i++) {
-        for (let j = 0; j < point[i].length; j++) {
-          if (point[i][j]) {
-            for (
-              let k = i + pointY + 1;
-              k < newCells.length;
-              k++
-            ) {
-              if (newCells[k][j + pointX].isFixed) {
-                distance =
-                  distance > k - (i + pointY) - 1
-                    ? k - (i + pointY) - 1
-                    : distance
-              }
-            }
-          }
-        }
-      }
-
+      const distance = calcDistanceToCollision(newCells)
       // 操作中のミノの落下予定地を設定
       for (let i = 0; i < point.length; i++) {
         for (let j = 0; j < point[i].length; j++) {
@@ -157,7 +168,7 @@ export const useGameController = () => {
       setFixedCells([...newFixedCells])
     }
     setCells([...newCells])
-  }, [currentMino, fixedCells])
+  }, [calcDistanceToCollision, currentMino, fixedCells])
 
   const down = useCallback(() => {
     // ミノの削除対象となる列を算出
@@ -257,6 +268,20 @@ export const useGameController = () => {
     [cells, currentMino]
   )
 
+  const actionHardDrop = useCallback(() => {
+    const distance = calcDistanceToCollision(cells)
+    setCurrentMino({
+      ...currentMino,
+      pointY: currentMino.pointY + distance,
+    })
+    updateCells()
+  }, [
+    calcDistanceToCollision,
+    cells,
+    currentMino,
+    updateCells,
+  ])
+
   const action = useCallback(
     (action: Action) => {
       switch (action) {
@@ -268,10 +293,18 @@ export const useGameController = () => {
         case 'rotate90CCW':
           actionRotate90(action)
           break
+        case 'hardDrop':
+          actionHardDrop()
+          break
       }
       updateCells()
     },
-    [updateCells, actionHorizontal, actionRotate90]
+    [
+      updateCells,
+      actionHorizontal,
+      actionRotate90,
+      actionHardDrop,
+    ]
   )
 
   return { nextMinos, cells, action }
