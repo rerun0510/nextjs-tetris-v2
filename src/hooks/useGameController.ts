@@ -34,7 +34,7 @@ const createEmptyCells = (): Cell[][] =>
         color: isWall ? 'gray' : '',
         isFixed: isWall,
         isCurrent: false,
-        isTargetPoint: false,
+        isGhost: false,
       }
     })
   )
@@ -93,7 +93,7 @@ export const useGameController = () => {
             color,
             isFixed: false,
             isCurrent: true,
-            isTargetPoint: false,
+            isGhost: false,
           }
         }
       }
@@ -133,7 +133,7 @@ export const useGameController = () => {
               color,
               isFixed: false,
               isCurrent: false,
-              isTargetPoint: true,
+              isGhost: true,
             }
           }
         }
@@ -149,7 +149,7 @@ export const useGameController = () => {
               color,
               isFixed: true,
               isCurrent: false,
-              isTargetPoint: false,
+              isGhost: false,
             }
           }
         }
