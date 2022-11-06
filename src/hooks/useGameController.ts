@@ -170,28 +170,56 @@ export const useGameController = () => {
     setCells([...newCells])
   }, [calcDistanceToCollision, currentMino, fixedCells])
 
-  const down = useCallback(() => {
+  const deleteCell = useCallback(() => {
     // ミノの削除対象となる列を算出
+    const newFixedCells = Array.from(fixedCells)
     const deleteIndex: number[] = []
     for (
       let i = FIELD_WALL_SIZE;
-      i < fixedCells.length - FIELD_WALL_SIZE;
+      i < newFixedCells.length - FIELD_WALL_SIZE;
       i++
     ) {
       let minoCount = 0
       for (
         let j = FIELD_WALL_SIZE;
-        j < fixedCells[i].length - FIELD_WALL_SIZE;
+        j < newFixedCells[i].length - FIELD_WALL_SIZE;
         j++
       ) {
-        minoCount += fixedCells[i][j].isFixed ? 1 : 0
+        minoCount += newFixedCells[i][j].isFixed ? 1 : 0
       }
       if (FIELD_SIZE_X === minoCount) {
         deleteIndex.push(i)
       }
     }
-    // TODO: 列の削除処理を実装
+    // セルの削除
+    if (deleteIndex.length) {
+      for (let i = 0; i < deleteIndex.length; i++) {
+        newFixedCells.splice(deleteIndex[i], 1)
+        newFixedCells.splice(
+          FIELD_WALL_SIZE,
+          0,
+          Array.from({ length: CELL_SIZE_X }, (_, i) => {
+            const isWall = !(
+              FIELD_WALL_SIZE <= i &&
+              i < FIELD_SIZE_X + FIELD_WALL_SIZE
+            )
+            return {
+              color: isWall ? 'gray' : '',
+              isFixed: isWall,
+              isCurrent: false,
+              isGhost: false,
+            }
+          })
+        )
+      }
+      setFixedCells([...newFixedCells])
+    }
+  }, [fixedCells])
 
+  const loop = useCallback(() => {
+    // ミノの削除
+    deleteCell()
+    // ミノの落下
     if (
       currentMino.isFixed ||
       currentMino.mino === 'none'
@@ -211,9 +239,9 @@ export const useGameController = () => {
       })
       updateCells()
     }
-  }, [currentMino, fixedCells, popMino, updateCells])
+  }, [currentMino, deleteCell, popMino, updateCells])
 
-  useInterval({ onUpdate: () => down() })
+  useInterval({ onUpdate: () => loop() })
 
   const actionRotate90 = useCallback(
     (action: ActionRotate) => {
