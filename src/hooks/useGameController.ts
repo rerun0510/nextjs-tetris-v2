@@ -91,19 +91,27 @@ export const useGameController = () => {
     const { points, color } = minos[mino]
     const point = points[deg]
     const newFixedCells = Array.from(fixedCells)
-    const newCells = Array.from(createEmptyCells())
+    const newCells = Array.from(fixedCells)
 
-    // 既存のミノを配置
-    for (let i = 0; i < newFixedCells.length; i++) {
-      for (let j = 0; j < newFixedCells[i].length; j++) {
-        if (newFixedCells[i][j].isFixed) {
-          newCells[i][j] = { ...newFixedCells[i][j] }
+    // 1つ前の操作中ミノとその影を削除
+    for (let i = 0; i < newCells.length; i++) {
+      for (let j = 0; j < newCells[i].length; j++) {
+        if (
+          newCells[i][j].isCurrent ||
+          newCells[i][j].isGhost
+        ) {
+          newCells[i][j] = {
+            color: '',
+            isFixed: false,
+            isCurrent: false,
+            isGhost: false,
+          }
         }
       }
     }
 
     // 操作中のミノに関する処理
-    let isFixed = false
+    let isFixed = currentMino.isFixed
     for (let i = 0; i < point.length; i++) {
       for (let j = 0; j < point[i].length; j++) {
         if (point[i][j]) {
@@ -165,9 +173,9 @@ export const useGameController = () => {
           }
         }
       }
-      setFixedCells([...newFixedCells])
+      setFixedCells(newFixedCells)
     }
-    setCells([...newCells])
+    setCells(newCells)
   }, [calcDistanceToCollision, currentMino, fixedCells])
 
   const deleteCell = useCallback(() => {
@@ -212,7 +220,7 @@ export const useGameController = () => {
           })
         )
       }
-      setFixedCells([...newFixedCells])
+      setFixedCells(newFixedCells)
     }
   }, [fixedCells])
 
