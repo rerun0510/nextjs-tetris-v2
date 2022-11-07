@@ -8,6 +8,7 @@ import {
   Center,
   Flex,
   Square,
+  VStack,
 } from '@chakra-ui/react'
 
 import { Controller } from '@/components/controller'
@@ -38,8 +39,11 @@ export default function Home() {
   return (
     <Center>
       <Box p="20px">
-        <Flex mb="20px">
-          <Field cells={cells} />
+        <Flex>
+          <VStack>
+            <Field cells={cells} />
+            <Controller action={action} />
+          </VStack>
           <Box w="15px" />
           <Box>
             <MinoList nextMinos={nextMinos} />
@@ -62,8 +66,6 @@ export default function Home() {
             </Button>
           </Box>
         </Flex>
-
-        <Controller action={action} />
       </Box>
     </Center>
   )

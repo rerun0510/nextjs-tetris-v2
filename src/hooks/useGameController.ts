@@ -49,24 +49,38 @@ export const useGameController = () => {
       deg: 0,
       isFixed: false,
     })
-  const [fixedCells, setFixedCells] = useState<Cell[][]>([
-    ...createEmptyCells(),
-  ])
-  const [cells, setCells] = useState([
-    ...createEmptyCells(),
-  ])
+  const [fixedCells, setFixedCells] = useState<Cell[][]>(
+    createEmptyCells()
+  )
+  const [cells, setCells] = useState(createEmptyCells())
   const [gameState, setGameState] = useState<
     'stop' | 'start' | 'gameOver'
   >('stop')
   const [deleteLineCount, setDeleteLineCount] = useState(0)
+
+  const gameReset = useCallback(() => {
+    setFixedCells(createEmptyCells())
+    setCells(createEmptyCells())
+    setCurrentMino({
+      pointX: INIT_MINO_POSITION_X,
+      pointY: INIT_MINO_POSITION_Y,
+      mino: 'none',
+      deg: 0,
+      isFixed: false,
+    })
+    setDeleteLineCount(0)
+    setGameState('stop')
+  }, [])
 
   const onClickGameStateBtn = useCallback(() => {
     if (gameState === 'stop') {
       setGameState('start')
     } else if (gameState === 'start') {
       setGameState('stop')
+    } else {
+      gameReset()
     }
-  }, [gameState])
+  }, [gameReset, gameState])
 
   const calcDistanceToCollision = useCallback(
     (comparisonCells: Cell[][]) => {

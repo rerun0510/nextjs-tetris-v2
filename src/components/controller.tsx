@@ -17,7 +17,7 @@ type Props = {
 export const Controller: FC<Props> = memo(
   function Controller({ action }) {
     return (
-      <HStack>
+      <HStack justifyContent="center">
         <Button onClick={() => action('left')}>
           <BsArrowLeftCircle />
         </Button>
