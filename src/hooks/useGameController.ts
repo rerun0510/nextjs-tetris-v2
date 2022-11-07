@@ -39,16 +39,18 @@ const createEmptyCells = (): Cell[][] =>
     })
   )
 
+const initCurrentMino: CurrentMino = {
+  pointX: INIT_MINO_POSITION_X,
+  pointY: INIT_MINO_POSITION_Y,
+  mino: 'none',
+  deg: 0,
+  isFixed: false,
+}
+
 export const useGameController = () => {
   const { nextMinos, popMino } = useGeneratingMinos()
   const [currentMino, setCurrentMino] =
-    useState<CurrentMino>({
-      pointX: INIT_MINO_POSITION_X,
-      pointY: INIT_MINO_POSITION_Y,
-      mino: 'none',
-      deg: 0,
-      isFixed: false,
-    })
+    useState<CurrentMino>(initCurrentMino)
   const [fixedCells, setFixedCells] = useState<Cell[][]>(
     createEmptyCells()
   )
@@ -58,19 +60,13 @@ export const useGameController = () => {
   >('stop')
   const [deleteLineCount, setDeleteLineCount] = useState(0)
 
-  const gameReset = useCallback(() => {
+  const gameReset = () => {
     setFixedCells(createEmptyCells())
     setCells(createEmptyCells())
-    setCurrentMino({
-      pointX: INIT_MINO_POSITION_X,
-      pointY: INIT_MINO_POSITION_Y,
-      mino: 'none',
-      deg: 0,
-      isFixed: false,
-    })
+    setCurrentMino(initCurrentMino)
     setDeleteLineCount(0)
     setGameState('stop')
-  }, [])
+  }
 
   const onClickGameStateBtn = useCallback(() => {
     if (gameState === 'stop') {
@@ -80,7 +76,7 @@ export const useGameController = () => {
     } else {
       gameReset()
     }
-  }, [gameReset, gameState])
+  }, [gameState])
 
   const calcDistanceToCollision = useCallback(
     (comparisonCells: Cell[][]) => {
