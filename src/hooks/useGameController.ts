@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import {
   CELL_SIZE_X,
@@ -21,23 +21,6 @@ import {
 import { useGeneratingMinos } from './useGeneratingMinos'
 import { useInterval } from './useInterval'
 
-const createEmptyCells = (): Cell[][] =>
-  Array.from({ length: CELL_SIZE_Y }, (_, i): Cell[] =>
-    Array.from({ length: CELL_SIZE_X }, (_, j): Cell => {
-      const isWall = !(
-        i < FIELD_SIZE_Y + FIELD_WALL_SIZE &&
-        FIELD_WALL_SIZE <= j &&
-        j < FIELD_SIZE_X + FIELD_WALL_SIZE
-      )
-      return {
-        color: isWall ? 'gray' : '',
-        isFixed: isWall,
-        isCurrent: false,
-        isGhost: false,
-      }
-    })
-  )
-
 const initCurrentMino: CurrentMino = {
   pointX: INIT_MINO_POSITION_X,
   pointY: INIT_MINO_POSITION_Y,
@@ -47,25 +30,47 @@ const initCurrentMino: CurrentMino = {
 }
 
 export const useGameController = () => {
+  const createEmptyCells = useMemo(
+    (): Cell[][] =>
+      Array.from({ length: CELL_SIZE_Y }, (_, i): Cell[] =>
+        Array.from(
+          { length: CELL_SIZE_X },
+          (_, j): Cell => {
+            const isWall = !(
+              i < FIELD_SIZE_Y + FIELD_WALL_SIZE &&
+              FIELD_WALL_SIZE <= j &&
+              j < FIELD_SIZE_X + FIELD_WALL_SIZE
+            )
+            return {
+              color: isWall ? 'gray' : '',
+              isFixed: isWall,
+              isCurrent: false,
+              isGhost: false,
+            }
+          }
+        )
+      ),
+    []
+  )
   const { nextMinos, popMino } = useGeneratingMinos()
   const [currentMino, setCurrentMino] =
     useState<CurrentMino>(initCurrentMino)
   const [fixedCells, setFixedCells] = useState<Cell[][]>(
-    createEmptyCells()
+    createEmptyCells
   )
-  const [cells, setCells] = useState(createEmptyCells())
+  const [cells, setCells] = useState(createEmptyCells)
   const [gameState, setGameState] = useState<
     'stop' | 'start' | 'gameOver'
   >('stop')
   const [deleteLineCount, setDeleteLineCount] = useState(0)
 
-  const gameReset = () => {
-    setFixedCells(createEmptyCells())
-    setCells(createEmptyCells())
+  const gameReset = useCallback(() => {
+    setFixedCells([...createEmptyCells])
+    setCells([...createEmptyCells])
     setCurrentMino(initCurrentMino)
     setDeleteLineCount(0)
     setGameState('stop')
-  }
+  }, [createEmptyCells])
 
   const onClickGameStateBtn = useCallback(() => {
     if (gameState === 'stop') {
@@ -75,7 +80,7 @@ export const useGameController = () => {
     } else {
       gameReset()
     }
-  }, [gameState])
+  }, [gameReset, gameState])
 
   const calcDistanceToCollision = useCallback(
     (comparisonCells: Cell[][]) => {
@@ -107,7 +112,7 @@ export const useGameController = () => {
     [currentMino]
   )
 
-  const fixedDecision = useCallback(() => {
+  const fixedDecision = useMemo(() => {
     const { pointX, pointY, mino, deg } = currentMino
     const { points } = minos[mino]
     const point = points[deg]
@@ -142,7 +147,7 @@ export const useGameController = () => {
     return
   }, [cells, currentMino])
 
-  const updateCells = useCallback(() => {
+  const calcCells = useMemo(() => {
     const { pointX, pointY, mino, deg } = currentMino
     const { points, color } = minos[mino]
     const point = points[deg]
@@ -199,10 +204,14 @@ export const useGameController = () => {
         }
       }
     }
-    setCells(newCells)
+    return newCells
   }, [calcDistanceToCollision, currentMino, fixedCells])
 
-  const deleteCell = useCallback(() => {
+  const updateCells = useCallback(() => {
+    setCells([...calcCells])
+  }, [calcCells])
+
+  const deleteCells = useCallback(() => {
     // ミノの削除対象となる列を算出
     const newFixedCells = Array.from(fixedCells)
     const deleteIndex: number[] = []
@@ -277,12 +286,12 @@ export const useGameController = () => {
     }
 
     // ミノの削除
-    deleteCell()
+    deleteCells()
 
     // ミノの落下
     if (currentMino.isFixed) {
       // 着地の再判定を行う(着地前の移動に対応)
-      if (fixedDecision()) {
+      if (fixedDecision) {
         const newFixedCells = Array.from(fixedCells)
         for (let i = 0; i < point.length; i++) {
           for (let j = 0; j < point[i].length; j++) {
@@ -315,7 +324,7 @@ export const useGameController = () => {
         return
       }
     } else {
-      if (fixedDecision()) {
+      if (fixedDecision) {
         setCurrentMino({
           ...currentMino,
           isFixed: true,
@@ -331,7 +340,7 @@ export const useGameController = () => {
     }
   }, [
     currentMino,
-    deleteCell,
+    deleteCells,
     fixedCells,
     fixedDecision,
     gameDecision,
