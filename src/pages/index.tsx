@@ -2,7 +2,13 @@ import { useEffect, useState } from 'react'
 
 import { useRouter } from 'next/router'
 
-import { Box, Button, Center, Flex } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  Square,
+} from '@chakra-ui/react'
 
 import { Controller } from '@/components/controller'
 import { Field } from '@/components/field'
@@ -18,6 +24,7 @@ export default function Home() {
     action,
     gameState,
     onClickGameStateBtn,
+    deleteLineCount,
   } = useGameController()
 
   useEffect(() => {
@@ -36,6 +43,9 @@ export default function Home() {
           <Box w="15px" />
           <Box>
             <MinoList nextMinos={nextMinos} />
+            <Square border="solid 1px" mt="30px">
+              {deleteLineCount}
+            </Square>
             <Button
               onClick={onClickGameStateBtn}
               w="100%"

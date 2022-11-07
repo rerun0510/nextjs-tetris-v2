@@ -58,6 +58,7 @@ export const useGameController = () => {
   const [gameState, setGameState] = useState<
     'stop' | 'start' | 'gameOver'
   >('stop')
+  const [deleteLineCount, setDeleteLineCount] = useState(0)
 
   const onClickGameStateBtn = useCallback(() => {
     if (gameState === 'stop') {
@@ -235,9 +236,12 @@ export const useGameController = () => {
         )
       }
       setFixedCells(newFixedCells)
+      setDeleteLineCount(
+        deleteLineCount + deleteIndex.length
+      )
       updateCells()
     }
-  }, [fixedCells, updateCells])
+  }, [deleteLineCount, fixedCells, updateCells])
 
   const loop = useCallback(() => {
     if (gameState !== 'start') {
@@ -427,5 +431,6 @@ export const useGameController = () => {
     action,
     gameState,
     onClickGameStateBtn,
+    deleteLineCount,
   }
 }
