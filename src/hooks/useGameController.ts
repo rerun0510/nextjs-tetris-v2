@@ -344,28 +344,42 @@ export const useGameController = () => {
 
   const actionRotate90 = useCallback(
     (action: ActionRotate) => {
-      let deg = currentMino.deg
-      // TODO: 回転の判定処理を挟む
-      switch (deg) {
+      // 回転後の角度を算出
+      let newDeg = currentMino.deg
+      switch (newDeg) {
         case 0:
-          deg = action === 'rotate90CW' ? 90 : 270
+          newDeg = action === 'rotate90CW' ? 90 : 270
           break
         case 90:
-          deg = action === 'rotate90CW' ? 180 : 0
+          newDeg = action === 'rotate90CW' ? 180 : 0
           break
         case 180:
-          deg = action === 'rotate90CW' ? 270 : 90
+          newDeg = action === 'rotate90CW' ? 270 : 90
           break
         case 270:
-          deg = action === 'rotate90CW' ? 0 : 180
+          newDeg = action === 'rotate90CW' ? 0 : 180
           break
+      }
+      // 回転後の状態を確認
+      const { pointX, pointY, mino } = currentMino
+      const { points } = minos[mino]
+      const point = points[newDeg]
+      for (let i = 0; i < point.length; i++) {
+        for (let j = 0; j < point[i].length; j++) {
+          if (
+            point[i][j] &&
+            cells[i + pointY][j + pointX].isFixed
+          ) {
+            return
+          }
+        }
       }
       setCurrentMino({
         ...currentMino,
-        deg,
+        deg: newDeg,
       })
     },
-    [currentMino]
+    [cells, currentMino]
   )
 
   const actionHorizontal = useCallback(
