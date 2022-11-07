@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 
+import { useKey } from 'react-use'
+
 import {
   CELL_SIZE_X,
   CELL_SIZE_Y,
@@ -456,6 +458,16 @@ export const useGameController = () => {
       actionHardDrop,
     ]
   )
+
+  // キーボードイベントの取得
+  useKey('ArrowLeft', () => action('left'), {}, [action])
+  useKey('ArrowRight', () => action('right'), {}, [action])
+  useKey('ArrowUp', () => action('rotate90CW'), {}, [
+    action,
+  ])
+  useKey('ArrowDown', () => action('hardDrop'), {}, [
+    action,
+  ])
 
   return {
     nextMinos,
