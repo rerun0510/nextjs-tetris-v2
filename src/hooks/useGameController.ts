@@ -25,7 +25,6 @@ const createEmptyCells = (): Cell[][] =>
   Array.from({ length: CELL_SIZE_Y }, (_, i): Cell[] =>
     Array.from({ length: CELL_SIZE_X }, (_, j): Cell => {
       const isWall = !(
-        FIELD_WALL_SIZE <= i &&
         i < FIELD_SIZE_Y + FIELD_WALL_SIZE &&
         FIELD_WALL_SIZE <= j &&
         j < FIELD_SIZE_X + FIELD_WALL_SIZE

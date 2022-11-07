@@ -2,6 +2,7 @@ import { FC, memo } from 'react'
 
 import { Box, Flex } from '@chakra-ui/react'
 
+import { FIELD_WALL_SIZE } from '@/constants/settings'
 import { Cell } from '@/types'
 
 import { MinoSquare } from './minoSquare'
@@ -14,13 +15,21 @@ export const Field: FC<Props> = memo(function Field({
   cells,
 }) {
   return (
-    <Box>
+    <Box border="solid 2px">
       {cells.length &&
         (() => {
           const itemsI: JSX.Element[] = []
-          for (let i = 0; i < cells.length; i++) {
+          for (
+            let i = FIELD_WALL_SIZE;
+            i < cells.length - FIELD_WALL_SIZE;
+            i++
+          ) {
             const itemsJ: JSX.Element[] = []
-            for (let j = 0; j < cells[i].length; j++) {
+            for (
+              let j = FIELD_WALL_SIZE;
+              j < cells[i].length - FIELD_WALL_SIZE;
+              j++
+            ) {
               itemsJ.push(
                 <MinoSquare
                   key={j}

@@ -13,4 +13,4 @@ export const CELL_SIZE_Y =
 
 // 操作対象となるミノの初期位置
 export const INIT_MINO_POSITION_X = FIELD_WALL_SIZE + 3
-export const INIT_MINO_POSITION_Y = FIELD_WALL_SIZE + 0
+export const INIT_MINO_POSITION_Y = 0
