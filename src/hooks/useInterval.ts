@@ -15,7 +15,7 @@ export const useInterval = ({ onUpdate }: Params) => {
         setTmpTime(new Date())
       }
       const diff = dayjs().diff(tmpTime)
-      if (diff > 800) {
+      if (diff > 600) {
         setTmpTime(new Date())
         onUpdate()
       }
