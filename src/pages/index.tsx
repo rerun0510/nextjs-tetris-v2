@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { useRouter } from 'next/router'
 
-import { Box, Center, Flex } from '@chakra-ui/react'
+import { Box, Button, Center, Flex } from '@chakra-ui/react'
 
 import { Controller } from '@/components/controller'
 import { Field } from '@/components/field'
@@ -12,7 +12,13 @@ import { useGameController } from '@/hooks/useGameController'
 export default function Home() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const { nextMinos, cells, action } = useGameController()
+  const {
+    nextMinos,
+    cells,
+    action,
+    gameState,
+    onClickGameStateBtn,
+  } = useGameController()
 
   useEffect(() => {
     if (router.isReady) {
@@ -24,12 +30,29 @@ export default function Home() {
 
   return (
     <Center>
-      <Box>
-        <Flex>
+      <Box p="20px">
+        <Flex mb="20px">
           <Field cells={cells} />
           <Box w="15px" />
-          <MinoList nextMinos={nextMinos} />
+          <Box>
+            <MinoList nextMinos={nextMinos} />
+            <Button
+              onClick={onClickGameStateBtn}
+              w="100%"
+              mt="30px"
+            >
+              {(() => {
+                if (gameState === 'stop') {
+                  return 'START'
+                } else if (gameState === 'start') {
+                  return 'STOP'
+                }
+                return 'GAME OVER'
+              })()}
+            </Button>
+          </Box>
         </Flex>
+
         <Controller action={action} />
       </Box>
     </Center>

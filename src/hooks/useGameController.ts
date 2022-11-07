@@ -55,6 +55,17 @@ export const useGameController = () => {
   const [cells, setCells] = useState([
     ...createEmptyCells(),
   ])
+  const [gameState, setGameState] = useState<
+    'stop' | 'start' | 'gameOver'
+  >('stop')
+
+  const onClickGameStateBtn = useCallback(() => {
+    if (gameState === 'stop') {
+      setGameState('start')
+    } else if (gameState === 'start') {
+      setGameState('stop')
+    }
+  }, [gameState])
 
   const calcDistanceToCollision = useCallback(
     (comparisonCells: Cell[][]) => {
@@ -101,6 +112,24 @@ export const useGameController = () => {
       }
     }
     return false
+  }, [cells, currentMino])
+
+  const gameDecision = useCallback(() => {
+    const { pointX, pointY, mino, deg } = currentMino
+    const { points } = minos[mino]
+    const point = points[deg]
+    for (let i = 0; i < point.length; i++) {
+      for (let j = 0; j < point[i].length; j++) {
+        if (point[i][j]) {
+          const cell = cells[i + pointY][j + pointX]
+          if (cell.isFixed && cell.color) {
+            setGameState('gameOver')
+            return
+          }
+        }
+      }
+    }
+    return
   }, [cells, currentMino])
 
   const updateCells = useCallback(() => {
@@ -211,6 +240,12 @@ export const useGameController = () => {
   }, [fixedCells, updateCells])
 
   const loop = useCallback(() => {
+    if (gameState !== 'start') {
+      return
+    }
+
+    gameDecision()
+
     const { pointX, pointY, mino, deg } = currentMino
     const { points, color } = minos[mino]
     const point = points[deg]
@@ -286,6 +321,8 @@ export const useGameController = () => {
     deleteCell,
     fixedCells,
     fixedDecision,
+    gameDecision,
+    gameState,
     popMino,
     updateCells,
   ])
@@ -384,5 +421,11 @@ export const useGameController = () => {
     ]
   )
 
-  return { nextMinos, cells, action }
+  return {
+    nextMinos,
+    cells,
+    action,
+    gameState,
+    onClickGameStateBtn,
+  }
 }
