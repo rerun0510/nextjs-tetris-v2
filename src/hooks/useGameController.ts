@@ -120,7 +120,7 @@ export const useGameController = () => {
     return false
   }, [cells, currentMino])
 
-  const gameDecision = useCallback(() => {
+  const checkCellsOverFlow = useCallback(() => {
     for (
       let i = FIELD_WALL_SIZE;
       i < CELL_SIZE_X - FIELD_WALL_SIZE;
@@ -265,12 +265,10 @@ export const useGameController = () => {
         ...initCurrentMino,
         mino: popMino(),
       })
+      // Cellsを最新の状態に更新
       updateCells()
       return
     }
-
-    // ミノの削除
-    deleteCells()
 
     // ミノの落下
     if (currentMino.isFixed) {
@@ -317,14 +315,19 @@ export const useGameController = () => {
         })
       }
     }
-    gameDecision()
+
+    // Cellsを最新の状態に更新
     updateCells()
+    // ミノの削除
+    deleteCells()
+    // ゲームオーバーの判定
+    checkCellsOverFlow()
   }, [
     currentMino,
     deleteCells,
     fixedCells,
     fixedDecision,
-    gameDecision,
+    checkCellsOverFlow,
     gameState,
     popMino,
     updateCells,
@@ -405,13 +408,7 @@ export const useGameController = () => {
       ...currentMino,
       pointY: currentMino.pointY + distance,
     })
-    updateCells()
-  }, [
-    calcDistanceToCollision,
-    cells,
-    currentMino,
-    updateCells,
-  ])
+  }, [calcDistanceToCollision, cells, currentMino])
 
   const actionHold = useCallback(() => {
     if (currentMino.canHold) {
