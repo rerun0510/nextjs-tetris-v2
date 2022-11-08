@@ -125,12 +125,12 @@ export const useGameController = () => {
       i < CELL_SIZE_X - FIELD_WALL_SIZE;
       i++
     ) {
-      if (cells[1][i].isFixed) {
+      if (fixedCells[1][i].isFixed) {
         setGameState('gameOver')
       }
     }
     return
-  }, [cells])
+  }, [fixedCells])
 
   const calcCells = useMemo(() => {
     const { pointX, pointY, mino, deg } = currentMino
