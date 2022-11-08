@@ -11,7 +11,7 @@ import {
   INIT_MINO_POSITION_X,
   INIT_MINO_POSITION_Y,
 } from '@/constants/settings'
-import { minos } from '@/enums'
+import { Mino, minos } from '@/enums'
 import {
   Action,
   ActionHorizontal,
@@ -29,6 +29,7 @@ const initCurrentMino: CurrentMino = {
   mino: 'none',
   deg: 0,
   isFixed: false,
+  canHold: true,
 }
 
 export const useGameController = () => {
@@ -65,6 +66,7 @@ export const useGameController = () => {
     'stop' | 'start' | 'gameOver'
   >('stop')
   const [deleteLineCount, setDeleteLineCount] = useState(0)
+  const [holdMino, setHoldMino] = useState<Mino>('none')
 
   const gameReset = useCallback(() => {
     setFixedCells([...createEmptyCells])
@@ -282,6 +284,7 @@ export const useGameController = () => {
         mino: popMino(),
         deg: 0,
         isFixed: false,
+        canHold: true,
       })
       updateCells()
       return
@@ -316,6 +319,7 @@ export const useGameController = () => {
           mino: popMino(),
           deg: 0,
           isFixed: false,
+          canHold: true,
         })
       } else {
         setCurrentMino({
@@ -434,6 +438,26 @@ export const useGameController = () => {
     updateCells,
   ])
 
+  const actionHold = useCallback(() => {
+    if (currentMino.canHold) {
+      // 次のミノの落下開始
+      setCurrentMino({
+        pointX: INIT_MINO_POSITION_X,
+        pointY: INIT_MINO_POSITION_Y,
+        mino: holdMino === 'none' ? popMino() : holdMino,
+        deg: 0,
+        isFixed: false,
+        canHold: false,
+      })
+      setHoldMino(currentMino.mino)
+    }
+  }, [
+    currentMino.canHold,
+    currentMino.mino,
+    holdMino,
+    popMino,
+  ])
+
   const action = useCallback(
     (action: Action) => {
       switch (action) {
@@ -448,6 +472,9 @@ export const useGameController = () => {
         case 'hardDrop':
           actionHardDrop()
           break
+        case 'hold':
+          actionHold()
+          break
       }
       updateCells()
     },
@@ -456,6 +483,7 @@ export const useGameController = () => {
       actionHorizontal,
       actionRotate90,
       actionHardDrop,
+      actionHold,
     ]
   )
 
@@ -476,5 +504,6 @@ export const useGameController = () => {
     gameState,
     onClickGameStateBtn,
     deleteLineCount,
+    holdMino,
   }
 }

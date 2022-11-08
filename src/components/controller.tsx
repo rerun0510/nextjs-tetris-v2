@@ -1,6 +1,6 @@
 import { FC, memo } from 'react'
 
-import { Button, HStack } from '@chakra-ui/react'
+import { Button, HStack, VStack } from '@chakra-ui/react'
 import {
   BsArrowRightCircle,
   BsArrowLeftCircle,
@@ -17,23 +17,26 @@ type Props = {
 export const Controller: FC<Props> = memo(
   function Controller({ action }) {
     return (
-      <HStack justifyContent="center">
-        <Button onClick={() => action('left')}>
-          <BsArrowLeftCircle />
-        </Button>
-        <Button onClick={() => action('hardDrop')}>
-          <BsArrowDownCircle />
-        </Button>
-        <Button onClick={() => action('right')}>
-          <BsArrowRightCircle />
-        </Button>
-        <Button onClick={() => action('rotate90CCW')}>
-          <FiRotateCcw />
-        </Button>
-        <Button onClick={() => action('rotate90CW')}>
-          <FiRotateCw />
-        </Button>
-      </HStack>
+      <VStack>
+        <HStack justifyContent="center">
+          <Button onClick={() => action('left')}>
+            <BsArrowLeftCircle />
+          </Button>
+          <Button onClick={() => action('hardDrop')}>
+            <BsArrowDownCircle />
+          </Button>
+          <Button onClick={() => action('right')}>
+            <BsArrowRightCircle />
+          </Button>
+          <Button onClick={() => action('rotate90CCW')}>
+            <FiRotateCcw />
+          </Button>
+          <Button onClick={() => action('rotate90CW')}>
+            <FiRotateCw />
+          </Button>
+        </HStack>
+        <Button onClick={() => action('hold')}>HOLD</Button>
+      </VStack>
     )
   }
 )

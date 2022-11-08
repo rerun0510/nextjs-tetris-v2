@@ -13,6 +13,7 @@ import {
 
 import { Controller } from '@/components/controller'
 import { Field } from '@/components/field'
+import { MinoHold } from '@/components/minoHold'
 import { MinoList } from '@/components/minoList'
 import { useGameController } from '@/hooks/useGameController'
 
@@ -26,6 +27,7 @@ export default function Home() {
     gameState,
     onClickGameStateBtn,
     deleteLineCount,
+    holdMino,
   } = useGameController()
 
   useEffect(() => {
@@ -40,6 +42,10 @@ export default function Home() {
     <Center>
       <Box p="20px">
         <Flex>
+          <MinoHold
+            holdMino={holdMino}
+            actionHold={action}
+          />
           <VStack>
             <Field cells={cells} />
             <Controller action={action} />
