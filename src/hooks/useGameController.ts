@@ -70,6 +70,7 @@ export const useGameController = () => {
     'stop' | 'start' | 'gameOver'
   >('stop')
   const [deleteLineCount, setDeleteLineCount] = useState(0)
+  const [level, setLevel] = useState(1)
   const [holdMino, setHoldMino] = useState<Mino>('none')
 
   const calcDistanceToCollision = useCallback(
@@ -239,9 +240,13 @@ export const useGameController = () => {
         )
       }
       setFixedCells(_.cloneDeep(newFixedCells))
-      setDeleteLineCount(
+
+      // ライン数、レベルの更新
+      const newDeleteLineCount =
         deleteLineCount + deleteIndex.length
-      )
+      setDeleteLineCount(newDeleteLineCount)
+      setLevel(Math.floor(newDeleteLineCount / 5) + 1)
+
       updateCells()
     }
   }, [deleteLineCount, fixedCells, updateCells])
@@ -325,7 +330,7 @@ export const useGameController = () => {
     updateCells,
   ])
 
-  useInterval({ onUpdate: () => loop() })
+  useInterval({ onUpdate: () => loop(), level })
 
   const actionRotate90 = useCallback(
     (action: ActionRotate) => {
@@ -495,6 +500,7 @@ export const useGameController = () => {
     gameState,
     onClickGameStateBtn,
     deleteLineCount,
+    level,
     holdMino,
   }
 }

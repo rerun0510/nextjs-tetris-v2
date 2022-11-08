@@ -7,7 +7,6 @@ import {
   Button,
   Center,
   Flex,
-  Square,
   VStack,
 } from '@chakra-ui/react'
 
@@ -15,6 +14,7 @@ import { Controller } from '@/components/controller'
 import { Field } from '@/components/field'
 import { MinoHold } from '@/components/minoHold'
 import { MinoList } from '@/components/minoList'
+import { ScoreBoard } from '@/components/scoreBoard'
 import { useGameController } from '@/hooks/useGameController'
 
 export default function Home() {
@@ -27,6 +27,7 @@ export default function Home() {
     gameState,
     onClickGameStateBtn,
     deleteLineCount,
+    level,
     holdMino,
   } = useGameController()
 
@@ -51,11 +52,12 @@ export default function Home() {
             <Controller action={action} />
           </VStack>
           <Box w="15px" />
-          <Box>
+          <Flex flexDir="column" align="center">
             <MinoList nextMinos={nextMinos} />
-            <Square border="solid 1px" mt="30px">
-              {deleteLineCount}
-            </Square>
+            <ScoreBoard
+              deleteLineCount={deleteLineCount}
+              level={level}
+            />
             <Button
               onClick={onClickGameStateBtn}
               w="100%"
@@ -70,7 +72,7 @@ export default function Home() {
                 return 'GAME OVER'
               })()}
             </Button>
-          </Box>
+          </Flex>
         </Flex>
       </Box>
     </Center>

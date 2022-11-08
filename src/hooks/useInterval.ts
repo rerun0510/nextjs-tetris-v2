@@ -4,9 +4,13 @@ import dayjs from 'dayjs'
 
 type Params = {
   onUpdate: () => void
+  level: number
 }
 
-export const useInterval = ({ onUpdate }: Params) => {
+export const useInterval = ({
+  onUpdate,
+  level,
+}: Params) => {
   const [tmpTime, setTmpTime] = useState<Date>()
 
   useEffect(() => {
@@ -15,7 +19,8 @@ export const useInterval = ({ onUpdate }: Params) => {
         setTmpTime(new Date())
       }
       const diff = dayjs().diff(tmpTime)
-      if (diff > 600) {
+
+      if (diff > 600 - (level - 1) * 100) {
         setTmpTime(new Date())
         onUpdate()
       }
