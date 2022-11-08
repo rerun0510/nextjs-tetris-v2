@@ -460,6 +460,9 @@ export const useGameController = () => {
 
   const action = useCallback(
     (action: Action) => {
+      if (gameState !== 'start') {
+        return
+      }
       switch (action) {
         case 'right':
         case 'left':
@@ -479,6 +482,7 @@ export const useGameController = () => {
       updateCells()
     },
     [
+      gameState,
       updateCells,
       actionHorizontal,
       actionRotate90,
