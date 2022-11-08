@@ -8,6 +8,7 @@ import {
   Center,
   Flex,
   VStack,
+  Text,
 } from '@chakra-ui/react'
 
 import { Controller } from '@/components/controller'
@@ -74,6 +75,11 @@ export default function Home() {
             </Button>
           </Flex>
         </Flex>
+        <Text>左移動：←</Text>
+        <Text>右移動：→</Text>
+        <Text>回転：↑</Text>
+        <Text>ハードドロップ：↓</Text>
+        <Text>ホールド：Shift</Text>
       </Box>
     </Center>
   )
