@@ -490,6 +490,7 @@ export const useGameController = () => {
   useKey('ArrowDown', () => action('hardDrop'), {}, [
     action,
   ])
+  useKey('Shift', () => action('hold'), {}, [action])
 
   return {
     nextMinos,
