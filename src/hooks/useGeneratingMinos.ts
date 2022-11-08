@@ -1,18 +1,23 @@
 import { useCallback, useState } from 'react'
 
+import _ from 'lodash'
+
 import { Mino, minos } from '@/enums'
 import { shuffleArray } from '@/utils'
 
-const initNextMinos = (): Mino[] =>
-  shuffleArray(
+const initNextMinos = (): Mino[] => [
+  ...shuffleArray(
     Object.keys(minos).filter((v) => v !== 'none')
-  )
+  ),
+  ...shuffleArray(
+    Object.keys(minos).filter((v) => v !== 'none')
+  ),
+]
 
 export const useGeneratingMinos = () => {
-  const [nextMinos, setNextMinos] = useState<Mino[]>([
-    ...initNextMinos(),
-    ...initNextMinos(),
-  ])
+  const [nextMinos, setNextMinos] = useState<Mino[]>(
+    _.cloneDeep(initNextMinos())
+  )
 
   const popMino = useCallback((): Mino => {
     const newNextMinos = [
@@ -25,9 +30,13 @@ export const useGeneratingMinos = () => {
       })(),
     ]
     const nextMino = newNextMinos.shift()
-    setNextMinos(newNextMinos)
+    setNextMinos(_.cloneDeep(newNextMinos))
     return nextMino ?? initNextMinos()[0]
   }, [nextMinos])
 
-  return { nextMinos, popMino }
+  const resetNextMinos = useCallback(() => {
+    setNextMinos(_.cloneDeep(initNextMinos()))
+  }, [])
+
+  return { nextMinos, popMino, resetNextMinos }
 }

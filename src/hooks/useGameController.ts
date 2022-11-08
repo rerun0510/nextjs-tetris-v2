@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 
+import _ from 'lodash'
 import { useKey } from 'react-use'
 
 import {
@@ -55,36 +56,21 @@ export const useGameController = () => {
       ),
     []
   )
-  const { nextMinos, popMino } = useGeneratingMinos()
+  const { nextMinos, popMino, resetNextMinos } =
+    useGeneratingMinos()
   const [currentMino, setCurrentMino] =
     useState<CurrentMino>(initCurrentMino)
   const [fixedCells, setFixedCells] = useState<Cell[][]>(
-    createEmptyCells
+    _.cloneDeep(createEmptyCells)
   )
-  const [cells, setCells] = useState(createEmptyCells)
+  const [cells, setCells] = useState(
+    _.cloneDeep(createEmptyCells)
+  )
   const [gameState, setGameState] = useState<
     'stop' | 'start' | 'gameOver'
   >('stop')
   const [deleteLineCount, setDeleteLineCount] = useState(0)
   const [holdMino, setHoldMino] = useState<Mino>('none')
-
-  const gameReset = useCallback(() => {
-    setFixedCells([...createEmptyCells])
-    setCells([...createEmptyCells])
-    setCurrentMino(initCurrentMino)
-    setDeleteLineCount(0)
-    setGameState('stop')
-  }, [createEmptyCells])
-
-  const onClickGameStateBtn = useCallback(() => {
-    if (gameState === 'stop') {
-      setGameState('start')
-    } else if (gameState === 'start') {
-      setGameState('stop')
-    } else {
-      gameReset()
-    }
-  }, [gameReset, gameState])
 
   const calcDistanceToCollision = useCallback(
     (comparisonCells: Cell[][]) => {
@@ -134,28 +120,23 @@ export const useGameController = () => {
   }, [cells, currentMino])
 
   const gameDecision = useCallback(() => {
-    const { pointX, pointY, mino, deg } = currentMino
-    const { points } = minos[mino]
-    const point = points[deg]
-    for (let i = 0; i < point.length; i++) {
-      for (let j = 0; j < point[i].length; j++) {
-        if (point[i][j]) {
-          const cell = cells[i + pointY][j + pointX]
-          if (cell.isFixed && cell.color) {
-            setGameState('gameOver')
-            return
-          }
-        }
+    for (
+      let i = FIELD_WALL_SIZE;
+      i < CELL_SIZE_X - FIELD_WALL_SIZE;
+      i++
+    ) {
+      if (cells[1][i].isFixed) {
+        setGameState('gameOver')
       }
     }
     return
-  }, [cells, currentMino])
+  }, [cells])
 
   const calcCells = useMemo(() => {
     const { pointX, pointY, mino, deg } = currentMino
     const { points, color } = minos[mino]
     const point = points[deg]
-    const newCells = Array.from(fixedCells)
+    const newCells = _.cloneDeep(fixedCells)
 
     // 1つ前の操作中ミノとその影を削除
     for (let i = 0; i < newCells.length; i++) {
@@ -212,12 +193,12 @@ export const useGameController = () => {
   }, [calcDistanceToCollision, currentMino, fixedCells])
 
   const updateCells = useCallback(() => {
-    setCells(calcCells)
+    setCells(_.cloneDeep(calcCells))
   }, [calcCells])
 
   const deleteCells = useCallback(() => {
     // ミノの削除対象となる列を算出
-    const newFixedCells = Array.from(fixedCells)
+    const newFixedCells = _.cloneDeep(fixedCells)
     const deleteIndex: number[] = []
     for (
       let i = FIELD_WALL_SIZE;
@@ -257,7 +238,7 @@ export const useGameController = () => {
           })
         )
       }
-      setFixedCells(newFixedCells)
+      setFixedCells(_.cloneDeep(newFixedCells))
       setDeleteLineCount(
         deleteLineCount + deleteIndex.length
       )
@@ -269,9 +250,6 @@ export const useGameController = () => {
     if (gameState !== 'start') {
       return
     }
-
-    gameDecision()
-
     const { pointX, pointY, mino, deg } = currentMino
     const { points, color } = minos[mino]
     const point = points[deg]
@@ -293,7 +271,7 @@ export const useGameController = () => {
     if (currentMino.isFixed) {
       // 着地の再判定を行う(着地前の移動に対応)
       if (fixedDecision) {
-        const newFixedCells = Array.from(fixedCells)
+        const newFixedCells = _.cloneDeep(fixedCells)
         for (let i = 0; i < point.length; i++) {
           for (let j = 0; j < point[i].length; j++) {
             if (point[i][j]) {
@@ -306,7 +284,7 @@ export const useGameController = () => {
             }
           }
         }
-        setFixedCells(newFixedCells)
+        setFixedCells(_.cloneDeep(newFixedCells))
 
         // 次のミノの落下開始
         setCurrentMino({
@@ -318,7 +296,6 @@ export const useGameController = () => {
           ...currentMino,
           pointY: currentMino.pointY + 1,
         })
-        updateCells()
         return
       }
     } else {
@@ -334,8 +311,9 @@ export const useGameController = () => {
           pointY: currentMino.pointY + 1,
         })
       }
-      updateCells()
     }
+    gameDecision()
+    updateCells()
   }, [
     currentMino,
     deleteCells,
@@ -479,6 +457,26 @@ export const useGameController = () => {
       actionHold,
     ]
   )
+
+  const gameReset = useCallback(() => {
+    setFixedCells(_.cloneDeep(createEmptyCells))
+    setCells(_.cloneDeep(createEmptyCells))
+    setCurrentMino({ ...initCurrentMino })
+    setDeleteLineCount(0)
+    setHoldMino('none')
+    setGameState('stop')
+    resetNextMinos()
+  }, [createEmptyCells, resetNextMinos])
+
+  const onClickGameStateBtn = useCallback(() => {
+    if (gameState === 'stop') {
+      setGameState('start')
+    } else if (gameState === 'start') {
+      setGameState('stop')
+    } else {
+      gameReset()
+    }
+  }, [gameReset, gameState])
 
   // キーボードイベントの取得
   useKey('ArrowLeft', () => action('left'), {}, [action])

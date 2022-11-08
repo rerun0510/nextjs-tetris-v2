@@ -3,7 +3,7 @@ export const FIELD_SIZE_X = 10
 export const FIELD_SIZE_Y = 20
 
 // 壁のサイズ
-export const FIELD_WALL_SIZE = 1
+export const FIELD_WALL_SIZE = 2
 
 // セル全体のサイズ
 export const CELL_SIZE_X =
