@@ -251,26 +251,11 @@ export const useGameController = () => {
     }
   }, [deleteLineCount, fixedCells, updateCells])
 
-  const loop = useCallback(() => {
-    if (gameState !== 'start') {
-      return
-    }
+  const fallCurrentMino = useCallback(() => {
     const { pointX, pointY, mino, deg } = currentMino
     const { points, color } = minos[mino]
     const point = points[deg]
 
-    // スタート時
-    if (currentMino.mino === 'none') {
-      setCurrentMino({
-        ...initCurrentMino,
-        mino: popMino(),
-      })
-      // Cellsを最新の状態に更新
-      updateCells()
-      return
-    }
-
-    // ミノの落下
     if (currentMino.isFixed) {
       // 着地の再判定を行う(着地前の移動に対応)
       if (fixedDecision) {
@@ -315,7 +300,24 @@ export const useGameController = () => {
         })
       }
     }
+  }, [currentMino, fixedCells, fixedDecision, popMino])
 
+  const loop = useCallback(() => {
+    if (gameState !== 'start') {
+      return
+    }
+    // スタート時
+    if (currentMino.mino === 'none') {
+      setCurrentMino({
+        ...initCurrentMino,
+        mino: popMino(),
+      })
+      // Cellsを最新の状態に更新
+      updateCells()
+      return
+    }
+    // ミノの落下
+    fallCurrentMino()
     // Cellsを最新の状態に更新
     updateCells()
     // ミノの削除
@@ -323,14 +325,13 @@ export const useGameController = () => {
     // ゲームオーバーの判定
     checkCellsOverFlow()
   }, [
-    currentMino,
-    deleteCells,
-    fixedCells,
-    fixedDecision,
-    checkCellsOverFlow,
     gameState,
-    popMino,
+    currentMino.mino,
+    fallCurrentMino,
     updateCells,
+    deleteCells,
+    checkCellsOverFlow,
+    popMino,
   ])
 
   useInterval({ onUpdate: () => loop(), level })
