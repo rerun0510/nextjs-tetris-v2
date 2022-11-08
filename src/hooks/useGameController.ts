@@ -212,7 +212,7 @@ export const useGameController = () => {
   }, [calcDistanceToCollision, currentMino, fixedCells])
 
   const updateCells = useCallback(() => {
-    setCells([...calcCells])
+    setCells(calcCells)
   }, [calcCells])
 
   const deleteCells = useCallback(() => {
@@ -279,12 +279,8 @@ export const useGameController = () => {
     // スタート時
     if (currentMino.mino === 'none') {
       setCurrentMino({
-        pointX: INIT_MINO_POSITION_X,
-        pointY: INIT_MINO_POSITION_Y,
+        ...initCurrentMino,
         mino: popMino(),
-        deg: 0,
-        isFixed: false,
-        canHold: true,
       })
       updateCells()
       return
@@ -314,12 +310,8 @@ export const useGameController = () => {
 
         // 次のミノの落下開始
         setCurrentMino({
-          pointX: INIT_MINO_POSITION_X,
-          pointY: INIT_MINO_POSITION_Y,
+          ...initCurrentMino,
           mino: popMino(),
-          deg: 0,
-          isFixed: false,
-          canHold: true,
         })
       } else {
         setCurrentMino({
@@ -442,11 +434,8 @@ export const useGameController = () => {
     if (currentMino.canHold) {
       // 次のミノの落下開始
       setCurrentMino({
-        pointX: INIT_MINO_POSITION_X,
-        pointY: INIT_MINO_POSITION_Y,
+        ...initCurrentMino,
         mino: holdMino === 'none' ? popMino() : holdMino,
-        deg: 0,
-        isFixed: false,
         canHold: false,
       })
       setHoldMino(currentMino.mino)
