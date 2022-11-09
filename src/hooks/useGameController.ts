@@ -197,31 +197,38 @@ export const useGameController = () => {
     setCells(_.cloneDeep(calcCells))
   }, [calcCells])
 
-  const deleteCells = useCallback(() => {
+  const calcDeleteCells = useMemo(() => {
     // ミノの削除対象となる列を算出
-    const newFixedCells = _.cloneDeep(fixedCells)
     const deleteIndex: number[] = []
     for (
       let i = FIELD_WALL_SIZE;
-      i < newFixedCells.length - FIELD_WALL_SIZE;
+      i < fixedCells.length - FIELD_WALL_SIZE;
       i++
     ) {
       let minoCount = 0
       for (
         let j = FIELD_WALL_SIZE;
-        j < newFixedCells[i].length - FIELD_WALL_SIZE;
+        j < fixedCells[i].length - FIELD_WALL_SIZE;
         j++
       ) {
-        minoCount += newFixedCells[i][j].isFixed ? 1 : 0
+        minoCount += fixedCells[i][j].isFixed ? 1 : 0
       }
       if (FIELD_SIZE_X === minoCount) {
         deleteIndex.push(i)
       }
     }
-    // セルの削除
+    return deleteIndex
+  }, [fixedCells])
+
+  const deleteCells = useCallback(() => {
+    const newFixedCells = _.cloneDeep(fixedCells)
+    const deleteIndex = _.cloneDeep(calcDeleteCells)
+    // セルの削除・追加
     if (deleteIndex.length) {
       for (let i = 0; i < deleteIndex.length; i++) {
+        // セルの削除
         newFixedCells.splice(deleteIndex[i], 1)
+        // 先頭に空のセルを追加
         newFixedCells.splice(
           FIELD_WALL_SIZE,
           0,
@@ -249,7 +256,12 @@ export const useGameController = () => {
 
       updateCells()
     }
-  }, [deleteLineCount, fixedCells, updateCells])
+  }, [
+    calcDeleteCells,
+    deleteLineCount,
+    fixedCells,
+    updateCells,
+  ])
 
   const fallCurrentMino = useCallback(() => {
     const { pointX, pointY, mino, deg } = currentMino
