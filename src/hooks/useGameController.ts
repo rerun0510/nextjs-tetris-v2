@@ -491,6 +491,9 @@ export const useGameController = () => {
     action,
   ])
   useKey('Shift', () => action('hold'), {}, [action])
+  useKey('Enter', () => onClickGameStateBtn(), {}, [
+    onClickGameStateBtn,
+  ])
 
   return {
     nextMinos,

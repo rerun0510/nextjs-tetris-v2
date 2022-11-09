@@ -80,6 +80,7 @@ export default function Home() {
         <Text>回転：↑</Text>
         <Text>ハードドロップ：↓</Text>
         <Text>ホールド：Shift</Text>
+        <Text>START/STOP：Enter</Text>
       </Box>
     </Center>
   )
