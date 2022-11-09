@@ -31,6 +31,7 @@ const initCurrentMino: CurrentMino = {
   deg: 0,
   isFixed: false,
   canHold: true,
+  hardDrop: false,
 }
 
 export const useGameController = () => {
@@ -339,11 +340,11 @@ export const useGameController = () => {
   }, [
     gameState,
     currentMino.mino,
-    fallCurrentMino,
     updateCells,
     deleteCells,
     checkCellsOverFlow,
     popMino,
+    fallCurrentMino,
   ])
 
   useInterval({ onUpdate: () => loop(), level })
@@ -420,6 +421,7 @@ export const useGameController = () => {
     setCurrentMino({
       ...currentMino,
       pointY: currentMino.pointY + distance,
+      hardDrop: true,
     })
   }, [calcDistanceToCollision, cells, currentMino])
 
@@ -442,7 +444,12 @@ export const useGameController = () => {
 
   const action = useCallback(
     (action: Action) => {
+      // ゲーム中以外は操作不能
       if (gameState !== 'start') {
+        return
+      }
+      // HardDrop時は操作不能
+      if (currentMino.hardDrop) {
         return
       }
       switch (action) {
@@ -465,6 +472,7 @@ export const useGameController = () => {
     },
     [
       gameState,
+      currentMino.hardDrop,
       updateCells,
       actionHorizontal,
       actionRotate90,

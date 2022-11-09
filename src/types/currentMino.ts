@@ -9,4 +9,5 @@ export type CurrentMino = {
   deg: Deg
   isFixed: boolean
   canHold: boolean
+  hardDrop: boolean
 }
