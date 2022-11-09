@@ -254,15 +254,8 @@ export const useGameController = () => {
         deleteLineCount + deleteIndex.length
       setDeleteLineCount(newDeleteLineCount)
       setLevel(Math.floor(newDeleteLineCount / 5) + 1)
-
-      updateCells()
     }
-  }, [
-    calcDeleteCells,
-    deleteLineCount,
-    fixedCells,
-    updateCells,
-  ])
+  }, [calcDeleteCells, deleteLineCount, fixedCells])
 
   const fallCurrentMino = useCallback(() => {
     const { pointX, pointY, mino, deg } = currentMino
@@ -293,6 +286,7 @@ export const useGameController = () => {
           mino: popMino(),
         })
       } else {
+        // 操作中のミノを1セル分落下
         setCurrentMino({
           ...currentMino,
           pointY: currentMino.pointY + 1,
@@ -331,20 +325,20 @@ export const useGameController = () => {
     }
     // ミノの落下
     fallCurrentMino()
-    // Cellsを最新の状態に更新
-    updateCells()
     // ミノの削除
     deleteCells()
     // ゲームオーバーの判定
     checkCellsOverFlow()
+    // Cellsを最新の状態に更新
+    updateCells()
   }, [
     gameState,
     currentMino.mino,
-    updateCells,
+    fallCurrentMino,
     deleteCells,
     checkCellsOverFlow,
+    updateCells,
     popMino,
-    fallCurrentMino,
   ])
 
   useInterval({ onUpdate: () => loop(), level })
