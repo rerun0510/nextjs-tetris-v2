@@ -265,6 +265,7 @@ export const useGameController = () => {
     if (currentMino.isFixed) {
       // 着地の再判定を行う(着地前の移動に対応)
       if (fixedDecision) {
+        // 着地（確定）
         const newFixedCells = _.cloneDeep(fixedCells)
         for (let i = 0; i < point.length; i++) {
           for (let j = 0; j < point[i].length; j++) {
@@ -286,15 +287,16 @@ export const useGameController = () => {
           mino: popMino(),
         })
       } else {
+        // 着地直前に移動が発生した場合
         // 操作中のミノを1セル分落下
         setCurrentMino({
           ...currentMino,
           pointY: currentMino.pointY + 1,
         })
-        return
       }
     } else {
       if (fixedDecision) {
+        // 着地（次のループで確定）
         setCurrentMino({
           ...currentMino,
           isFixed: true,
