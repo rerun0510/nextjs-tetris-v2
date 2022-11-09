@@ -30,14 +30,31 @@ export const Field: FC<Props> = memo(function Field({
               j < cells[i].length - FIELD_WALL_SIZE;
               j++
             ) {
+              const cell = cells[i][j]
               itemsJ.push(
                 <MinoSquare
                   key={j}
-                  bg={cells[i][j].color}
-                  border={
-                    cells[i][j].color ? undefined : 'none'
+                  bg={cell.color}
+                  border={cell.color ? undefined : 'none'}
+                  opacity={
+                    cell.isGhost || cell.isCurrent
+                      ? '0.8'
+                      : ''
                   }
-                  opacity={cells[i][j].isGhost ? '0.6' : ''}
+                  _before={
+                    cell.isGhost
+                      ? {
+                          content: '""',
+                          backgroundColor: 'black',
+                          pos: 'absolute',
+                          top: 0,
+                          right: 0,
+                          left: 0,
+                          bottom: 0,
+                          opacity: 0.4,
+                        }
+                      : undefined
+                  }
                 />
               )
             }
