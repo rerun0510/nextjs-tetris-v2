@@ -486,6 +486,7 @@ export const useGameController = () => {
     setCells(_.cloneDeep(createEmptyCells))
     setCurrentMino({ ...initCurrentMino })
     setDeleteLineCount(0)
+    setLevel(1)
     setHoldMino('none')
     setGameState('stop')
     resetNextMinos()
